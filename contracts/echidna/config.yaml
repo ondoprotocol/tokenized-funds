@@ -1,0 +1,7 @@
+testMode: property
+# Uncomment the below line for assertion testing
+# testMode: assertion 
+corpusDir: corpus
+seqLen: 25
+testLimit: 100000
+maxTimeDelay: 6048000

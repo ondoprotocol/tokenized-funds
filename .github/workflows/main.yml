@@ -1,0 +1,42 @@
+# This workflow will do a clean install of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+name: Node.js CI
+on:
+  push:
+    branches: [develop, staging, main]
+  pull_request:
+    branches: [develop, staging, main]
+jobs:
+  build:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    env:
+      FORK_FROM_BLOCK_NUMBER: ${{ secrets.FORK_FROM_BLOCK_NUMBER }}
+      FORGE_API_KEY_ETHEREUM: ${{ secrets.FORGE_API_KEY_ETHEREUM }}
+      ETHEREUM_RPC_URL: ${{ secrets.ETHEREUM_RPC_URL }}
+      POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
+      GOERLI_RPC_URL: ${{ secrets.GOERLI_RPC_URL }}
+      MNEMONIC: ${{ secrets.MNEMONIC }}
+      MAINNET_PRIVATE_KEY: ${{ secrets.MAINNET_PRIVATE_KEY }}
+      TESTNET_PRIVATE_KEY: ${{ secrets.TESTNET_PRIVATE_KEY }}
+      ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+      NODE_OPTIONS: "--max_old_space_size=4096"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          cache: "yarn"
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - run: yarn
+      - run: yarn lint:check
+      - run: yarn test-ci
+      - run: |
+          yarn local-node &
+          npx hardhat run --network localhost scripts/ci/event_coverage.ts
+      - run: yarn clean
+      - run: yarn test-forge-ci
+        continue-on-error: false

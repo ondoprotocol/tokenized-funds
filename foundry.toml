@@ -1,0 +1,14 @@
+[profile.default]
+src = 'contracts'
+test = 'forge-tests'
+out = 'artifactsforge'
+cache = false
+gas_reports = ["*"]
+lib = ['forge-tests/lib']
+remappings = [
+    'eth-gas-reporter/=node_modules/eth-gas-reporter/',
+    'forge-tests/=forge-tests'
+]
+
+
+# See more config options https://github.com/gakonst/foundry/tree/master/config
